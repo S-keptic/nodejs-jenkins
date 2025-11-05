@@ -1,7 +1,7 @@
 const express = require('express')
 const app = express()
 app.get('/',(req,res)=>{
-    res.send("Ping 1!")
+    res.send("Ping 2!")
 })
 
 app.listen(3000,()=>{
