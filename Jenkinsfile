@@ -2,6 +2,7 @@ pipeline {
     agent any
 
     environment {
+        // Define common variables
         DEPLOY_USER = 'ubuntu'
         DEPLOY_SERVER = '54.234.171.1'
         DEPLOY_PATH = '/opt/apps/node-demo/nodejs-jenkins'
@@ -9,7 +10,6 @@ pipeline {
     }
 
     stages {
-
         stage('Checkout') {
             steps {
                 git branch: 'main', url: 'https://github.com/S-keptic/nodejs-jenkins.git'
@@ -32,8 +32,13 @@ pipeline {
             steps {
                 bat '''
                 echo ====== Starting EC2 Deployment ======
-                "C:\\Windows\\System32\\OpenSSH\\scp.exe" -i "%PEM_PATH%" -r * %DEPLOY_USER%@%DEPLOY_SERVER%:%DEPLOY_PATH%/
-                "C:\\Windows\\System32\\OpenSSH\\ssh.exe" -i "%PEM_PATH%" %DEPLOY_USER%@%DEPLOY_SERVER% "cd %DEPLOY_PATH% && npm install --production && pm2 restart node-demo || pm2 start server.js --name node-demo"
+
+                REM Copy project files to EC2 (non-interactive)
+                "C:\\Windows\\System32\\OpenSSH\\scp.exe" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i "C:\\Users\\Anmol Srivastava\\Downloads\\test.pem" -r * ubuntu@54.234.171.1:/opt/apps/node-demo/nodejs-jenkins/
+
+                REM Restart or start PM2 on EC2
+                "C:\\Windows\\System32\\OpenSSH\\ssh.exe" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i "C:\\Users\\Anmol Srivastava\\Downloads\\test.pem" ubuntu@54.234.171.1 "cd /opt/apps/node-demo/nodejs-jenkins && npm install --production && pm2 restart node-demo || pm2 start server.js --name node-demo"
+
                 echo ====== Deployment Complete ======
                 '''
             }
